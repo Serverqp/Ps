@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فروشگاه</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(90deg, #36a84d, #65c1a4, #3b844a);
+            background-size: 300% 300%;
+            animation: gradientMove 10s infinite;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        header {
+            background-color: #6ab88e;
+            color: #fff;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        header .cart-btn {
+            background-color: #057528;
+            color: #ffffff;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .cart-popup {
+            display: none;
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background-color: #536fd3;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            width: 300px;
+            padding: 20px;
+            border-radius: 5px;
+            z-index: 10;
+        }
+
+        .cart-popup h2 {
+            font-size: 18px;
+        }
+
+        .cart-popup ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .cart-popup ul li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .cart-popup ul li img {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            margin-left: 10px;
+        }
+
+        .cart-popup .total {
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .cart-popup .pay-btn {
+            display: block;
+            text-align: center;
+            background-color: #5cb85c;
+            color: #fff;
+            padding: 10px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .product {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            width: calc(50% - 20px);
+            box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .product img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+        }
+
+        .product .details {
+            padding: 15px;
+        }
+
+        .product .price {
+            color: #5cb85c;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .product .description {
+            font-size: 14px;
+            margin: 10px 0;
+        }
+
+        .product .add-to-cart {
+            display: block;
+            text-align: center;
+            background-color: #098b09;
+            color: #fff;
+            padding: 10px;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .product .add-to-cart:hover {
+            background-color: #025aa5;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>فروشگاه</h1>
+        <div class="cart-btn" onclick="toggleCart()">سبد خرید</div>
+        <div class="cart-popup" id="cart">
+            <h2>سبد خرید</h2>
+            <ul id="cart-items"></ul>
+            <p class="total">جمع قیمت: <span id="total-price">0</span> تومان</p>
+            <a href="aparat.com" class="pay-btn">پرداخت</a>
+        </div>
+    </header>
+
+    <div class="container" id="product-list">
+        <!-- محصولات اینجا اضافه می‌شوند -->
+    </div>
+
+    <script>
+        const products = [
+            { id: 1, name: "پوستر طبیعت", price: 60000, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQI3ja6aNEHTKpdNWXMXw30po5vPFkauuAvxQ&s", description: "پوستر زیبا از طبیعت" },
+            { id: 2, name: "پوستر مذهبی", price: 40000, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRt6s4527VvmBtCB-hUphPpDRAnD9eFAu582g&s", description: "پوستر با تم مذهبی" },
+            { id: 3, name: "پوستر زیبا", price: 50000, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIIvKTPpu4tJO5bS6QUYL82T1YFgdG0OpaFA&s", description: "پوستر زیبا از طبیعت" },
+            { id: 4, name: "پوستر عالی", price: 10000, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRMWroPAZYtiwouObO4SmF9v2oAHktTMmEmw&s", description: "پوستر زیبا از طبیعت" },
+        ];
+
+        const cart = [];
+        const productList = document.getElementById("product-list");
+
+        // محصولات را در صفحه نمایش دهید
+        products.forEach(product => {
+            const productDiv = document.createElement("div");
+            productDiv.classList.add("product");
+            productDiv.innerHTML = `
+                <img src="${product.image}" alt="${product.name}">
+                <div class="details">
+                    <p class="price">${product.price.toLocaleString()} تومان</p>
+                    <p class="description">${product.description}</p>
+                    <a href="#" class="add-to-cart" onclick="addToCart(${product.id})">افزودن به سبد خرید</a>
+                </div>
+            `;
+            productList.appendChild(productDiv);
+        });
+
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            cart.push(product);
+            alert("این کالا به سبد خرید شما اضافه شد.");
+            updateCart();
+        }
+
+        function updateCart() {
+            const cartItems = document.getElementById("cart-items");
+            const totalPrice = document.getElementById("total-price");
+            cartItems.innerHTML = "";
+            let total = 0;
+
+            cart.forEach(item => {
+                total += item.price;
+                const listItem = document.createElement("li");
+                listItem.innerHTML = `
+                    <img src="${item.image}" alt="${item.name}">
+                    <div>
+                        <p>${item.name}</p>
+                        <p>${item.price.toLocaleString()} تومان</p>
+                    </div>
+                `;
+                cartItems.appendChild(listItem);
+            });
+
+            totalPrice.textContent = total.toLocaleString();
+        }
+
+        function toggleCart() {
+            const cart = document.getElementById("cart");
+            cart.style.display = cart.style.display === "block" ? "none" : "block";
+        }
+    </script>
+</body>
+</html>
